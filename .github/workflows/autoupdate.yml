@@ -1,0 +1,28 @@
+name: autoupdate
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 1-13 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  update-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: all in one
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+        run: |
+          echo "sync sgl-project/sglang main branch"
+          git clone --single-branch https://github.com/zhyncs/sglang
+          pushd sglang
+          git remote set-url origin https://github.com/sgl-project/sglang
+          git pull
+          git remote set-url origin https://$GITHUB_TOKEN@github.com/zhyncs/sglang
+          git config --local user.name zhyncs && git config --local user.email me@zhyncs.com && git push
